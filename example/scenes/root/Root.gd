@@ -15,3 +15,6 @@ func _on_run_as_server_pressed():
 
 func _on_run_as_client_pressed():
 	Logger.info("Running as client")
+	$SelectRunMode.hide()
+	var client = load("res://gmf/client/scenes/client/Client.tscn").instantiate()
+	self.add_child(client)

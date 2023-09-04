@@ -5,6 +5,7 @@ func _ready():
 	if not Global.load_server_env_variables():
 		Logger.error("Could not load server's env variables, stopping server")
 		get_tree().quit()
+		return
 
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
@@ -12,6 +13,7 @@ func _ready():
 	if not start():
 		Logger.error("Failed to start server, stopping server")
 		get_tree().quit()
+		return
 
 
 func get_tls_options() -> TLSOptions:
@@ -75,8 +77,8 @@ func start() -> bool:
 
 
 func _on_peer_connected(id):
-	Logger.info("Peer connected ", id)
+	Logger.info("Peer connected %d" % id)
 
 
 func _on_peer_disconnected(id):
-	Logger.info("Peer disconnected ", id)
+	Logger.info("Peer disconnected %d" % id)
