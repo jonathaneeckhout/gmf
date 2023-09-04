@@ -1,7 +1,6 @@
 extends Node
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	if not Global.load_client_env_variables():
 		Logger.error("Could not load client's env variables, stopping client")
@@ -12,10 +11,10 @@ func _ready():
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
-	connect_to_server(Global.env_server_address, Global.env_server_port)
+	Global.client = self
 
 
-func connect_to_server(address, port):
+func connect_to_server(address, port) -> bool:
 	var client = ENetMultiplayerPeer.new()
 
 	var error = client.create_client(address, port)
@@ -46,11 +45,14 @@ func connect_to_server(address, port):
 
 func _on_connection_succeeded():
 	Logger.info("Connection succeeded")
+	Signals.client_connected.emit(true)
 
 
 func _on_server_disconnected():
 	Logger.info("Server disconnected")
+	Signals.client_connected.emit(false)
 
 
 func _on_connection_failed():
 	Logger.warn("Connection failed")
+	Signals.client_connected.emit(false)

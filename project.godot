@@ -20,6 +20,12 @@ config/icon="res://icon.svg"
 Logger="*res://addons/logger/logger.gd"
 Env="*res://gmf/common/scripts/godotenv/scripts/env.gd"
 Global="*res://gmf/common/scripts/global.gd"
+Signals="*res://gmf/common/scripts/signals.gd"
+
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
 
 [dotnet]
 

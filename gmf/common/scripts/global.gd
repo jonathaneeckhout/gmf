@@ -7,6 +7,9 @@ var env_server_crt = ""
 var env_server_key = ""
 var env_debug = false
 
+var server: Node
+var client: Node
+
 
 func load_server_env_variables():
 	var env_port_str = Env.get_value("SERVER_PORT")

@@ -15,6 +15,8 @@ func _ready():
 		get_tree().quit()
 		return
 
+	Global.server = self
+
 
 func get_tls_options() -> TLSOptions:
 	var cert_file = FileAccess.open(Global.env_server_crt, FileAccess.READ)
