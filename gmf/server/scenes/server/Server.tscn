@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3r45qh0msqac"]
+
+[ext_resource type="Script" path="res://gmf/server/scenes/server/Server.gd" id="1_uefmg"]
+
+[node name="Server" type="Node"]
+script = ExtResource("1_uefmg")
