@@ -4,7 +4,7 @@ var logger: Node
 var env: Node
 var global: Node
 var signals: Node
-var account_rpcs: Node
+var rpcs: Node
 
 var server: Node
 var client: Node
@@ -27,9 +27,9 @@ func _ready():
 	signals.name = "Signals"
 	add_child(signals)
 
-	account_rpcs = load("res://gmf/common/scripts/rpcs/accountrpcs.gd").new()
-	account_rpcs.name = "AccountRPCs"
-	add_child(account_rpcs)
+	rpcs = load("res://gmf/common/scripts/rpcs.gd").new()
+	rpcs.name = "RPCs"
+	add_child(rpcs)
 
 
 func init_server() -> bool:

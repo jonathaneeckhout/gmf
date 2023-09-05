@@ -133,7 +133,7 @@ func _handle_create_account():
 
 	create_account_pressed = false
 
-	Gmf.account_rpcs.create_account.rpc_id(1, new_username, new_password)
+	Gmf.rpcs.account.create_account.rpc_id(1, new_username, new_password)
 
 	var response = await Gmf.signals.account_created
 	if response["error"]:
