@@ -8,7 +8,7 @@ func _ready():
 	match Gmf.global.env_server_database_backend:
 		"json":
 			Gmf.logger.info("Loading json database backend")
-			backend = load("res://gmf/server/scenes/database/backends/json_backend.gd").new()
+			backend = load("res://gmf/server/scripts/database/backends/json_backend.gd").new()
 			backend.name = "Backend"
 			add_child(backend)
 

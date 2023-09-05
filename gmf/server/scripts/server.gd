@@ -1,21 +1,15 @@
 extends Node
 
+var database: Node
+
 
 func _ready():
-	if not Gmf.global.load_server_env_variables():
-		Gmf.logger.error("Could not load server's env variables, stopping server")
-		get_tree().quit()
-		return
+	database = load("res://gmf/server/scripts/database/database.gd").new()
+	database.name = "Database"
+	add_child(database)
 
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
-
-	if not start():
-		Gmf.logger.error("Failed to start server, stopping server")
-		get_tree().quit()
-		return
-
-	Gmf.global.server = self
 
 
 func get_tls_options() -> TLSOptions:

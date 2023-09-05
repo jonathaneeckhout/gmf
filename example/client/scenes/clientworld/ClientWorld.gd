@@ -72,7 +72,7 @@ func _handle_connect():
 
 	connect_pressed = false
 
-	if !Gmf.global.client.connect_to_server(server_address, server_port):
+	if !Gmf.client.connect_to_server(server_address, server_port):
 		Gmf.logger.warn(
 			"Could not connect to server=[%s] on port=[%d]" % [server_address, server_port]
 		)
@@ -133,7 +133,7 @@ func _handle_create_account():
 
 	create_account_pressed = false
 
-	Gmf.account_rpc.create_account.rpc_id(1, new_username, new_password)
+	Gmf.account_rpcs.create_account.rpc_id(1, new_username, new_password)
 
 	var response = await Gmf.signals.account_created
 	if response["error"]:

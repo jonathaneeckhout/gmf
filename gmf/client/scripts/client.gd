@@ -2,11 +2,6 @@ extends Node
 
 
 func _ready():
-	if not Gmf.global.load_client_env_variables():
-		Gmf.logger.error("Could not load client's env variables, stopping client")
-		get_tree().quit()
-		return
-
 	multiplayer.connected_to_server.connect(_on_connection_succeeded)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
