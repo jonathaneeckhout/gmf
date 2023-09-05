@@ -4,12 +4,20 @@ var database: Node
 
 
 func _ready():
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
+
+func init() -> bool:
 	database = load("res://gmf/server/scripts/database/database.gd").new()
 	database.name = "Database"
 	add_child(database)
 
-	multiplayer.peer_connected.connect(_on_peer_connected)
-	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	if not database.init():
+		Gmf.logger.err("Failed to init server's database")
+		return false
+
+	return true
 
 
 func get_tls_options() -> TLSOptions:

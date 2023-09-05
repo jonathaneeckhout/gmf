@@ -3,8 +3,7 @@ extends Node
 var backend: Node
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
+func init() -> bool:
 	match Gmf.global.env_server_database_backend:
 		"json":
 			Gmf.logger.info("Loading json database backend")
@@ -12,10 +11,16 @@ func _ready():
 			backend.name = "Backend"
 			add_child(backend)
 
+	if not backend or not backend.init():
+		Gmf.logger.err("Failed to init database")
+		return false
+
+	return true
+
 
 func create_account(username: String, password: String) -> bool:
 	if username == "" or password == "":
 		Gmf.logger.info("Invalid username or password")
 		return false
 
-	return true
+	return backend.create_account(username, password)

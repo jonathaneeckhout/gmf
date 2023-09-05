@@ -1,6 +1,6 @@
 extends Node
 
-var logger: Node
+var logger: Log
 var env: Node
 var global: Node
 var signals: Node
@@ -34,19 +34,23 @@ func _ready():
 
 func init_server() -> bool:
 	if not Gmf.global.load_server_env_variables():
-		Gmf.logger.error("Could not load server's env variables, stopping server")
+		Gmf.logger.error("Could not load server's env variables")
 		return false
 
 	server = load("res://gmf/server/scripts/server.gd").new()
 	server.name = "Server"
 	add_child(server)
 
+	if not server.init():
+		Gmf.logger.error("Could not load init server")
+		return false
+
 	return true
 
 
 func init_client() -> bool:
 	if not Gmf.global.load_client_env_variables():
-		Gmf.logger.error("Could not load client's env variables, stopping client")
+		Gmf.logger.error("Could not load client's env variables")
 		return false
 
 	client = load("res://gmf/client/scripts/client.gd").new()
