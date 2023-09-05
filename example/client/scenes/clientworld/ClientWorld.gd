@@ -110,7 +110,13 @@ func _handle_login():
 
 	login_pressed = false
 
-	#TODO: login
+	Gmf.rpcs.account.authenticate.rpc_id(1, user, passwd)
+
+	var response = await Gmf.signals.authenticated
+	if response:
+		login_panel.show_login_error("Login succeeded")
+	else:
+		login_panel.show_login_error("Login failed")
 
 	fsm_timer.start()
 

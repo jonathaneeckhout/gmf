@@ -9,7 +9,7 @@ func init() -> bool:
 
 func create_file_if_not_exists(path: String, json_data: Dictionary) -> bool:
 	if FileAccess.file_exists(path):
-		Gmf.logger.debug("File=[%s] already exists" % path)
+		Gmf.logger.info("File=[%s] already exists" % path)
 		return true
 
 	return write_json_to_file(path, json_data)
@@ -30,15 +30,19 @@ func write_json_to_file(path: String, json_data: Dictionary) -> bool:
 	return true
 
 
-func create_account(username: String, password: String) -> bool:
-	var file = FileAccess.open(USERS_FILEPATH, FileAccess.READ)
+func read_json_from_file(path: String) -> Variant:
+	var file = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		Gmf.logger.warn("Could not open file=[%s] to read" % USERS_FILEPATH)
-		return false
+		Gmf.logger.warn("Could not open file=[%s] to read" % path)
+		return null
 
-	var users_string = file.get_as_text()
+	var string_data = file.get_as_text()
 
-	var users_json = JSON.parse_string(users_string)
+	return JSON.parse_string(string_data)
+
+
+func create_account(username: String, password: String) -> bool:
+	var users_json = read_json_from_file(USERS_FILEPATH)
 	if users_json == null:
 		Gmf.logger.warn("Could not json parse content of %s" % USERS_FILEPATH)
 		return false
@@ -56,3 +60,12 @@ func create_account(username: String, password: String) -> bool:
 	Gmf.logger.info("Successfully created user=[%s]" % username)
 
 	return true
+
+
+func authenticate_user(username: String, password: String) -> bool:
+	var users_json = read_json_from_file(USERS_FILEPATH)
+	if users_json == null:
+		Gmf.logger.warn("Could not json parse content of %s" % USERS_FILEPATH)
+		return false
+
+	return username in users_json and users_json[username] == password

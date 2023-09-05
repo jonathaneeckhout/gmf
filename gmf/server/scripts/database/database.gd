@@ -24,3 +24,11 @@ func create_account(username: String, password: String) -> bool:
 		return false
 
 	return backend.create_account(username, password)
+
+
+func authenticate_user(username: String, password: String) -> bool:
+	if username == "" or password == "":
+		Gmf.logger.info("Invalid username or password")
+		return false
+
+	return backend.authenticate_user(username, password)
