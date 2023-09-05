@@ -2,8 +2,8 @@ extends Node
 
 
 func _ready():
-	if not Global.load_server_env_variables():
-		Logger.error("Could not load server's env variables, stopping server")
+	if not Gmf.global.load_server_env_variables():
+		Gmf.logger.error("Could not load server's env variables, stopping server")
 		get_tree().quit()
 		return
 
@@ -11,22 +11,22 @@ func _ready():
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 
 	if not start():
-		Logger.error("Failed to start server, stopping server")
+		Gmf.logger.error("Failed to start server, stopping server")
 		get_tree().quit()
 		return
 
-	Global.server = self
+	Gmf.global.server = self
 
 
 func get_tls_options() -> TLSOptions:
-	var cert_file = FileAccess.open(Global.env_server_crt, FileAccess.READ)
+	var cert_file = FileAccess.open(Gmf.global.env_server_crt, FileAccess.READ)
 	if cert_file == null:
-		Logger.warn("Failed to open server certificate %s" % Global.env_server_crt)
+		Gmf.logger.warn("Failed to open server certificate %s" % Gmf.global.env_server_crt)
 		return null
 
-	var key_file = FileAccess.open(Global.env_server_key, FileAccess.READ)
+	var key_file = FileAccess.open(Gmf.global.env_server_key, FileAccess.READ)
 	if key_file == null:
-		Logger.warn("Failed to open server key %s" % Global.env_server_key)
+		Gmf.logger.warn("Failed to open server key %s" % Gmf.global.env_server_key)
 		return null
 
 	var cert_string = cert_file.get_as_text()
@@ -36,14 +36,14 @@ func get_tls_options() -> TLSOptions:
 
 	var error = cert.load_from_string(cert_string)
 	if error != OK:
-		Logger.warn("Failed to load certificate")
+		Gmf.logger.warn("Failed to load certificate")
 		return null
 
 	var key = CryptoKey.new()
 
 	error = key.load_from_string(key_string)
 	if error != OK:
-		Logger.warn("Failed to load key")
+		Gmf.logger.warn("Failed to load key")
 		return null
 
 	return TLSOptions.server(key, cert)
@@ -52,35 +52,35 @@ func get_tls_options() -> TLSOptions:
 func start() -> bool:
 	var server = ENetMultiplayerPeer.new()
 
-	var error = server.create_server(Global.env_server_port, Global.env_server_max_peers)
+	var error = server.create_server(Gmf.global.env_server_port, Gmf.global.env_server_max_peers)
 	if error != OK:
-		Logger.warn("Failed to create server")
+		Gmf.logger.warn("Failed to create server")
 		return false
 
 	if server.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
-		Logger.warn("Failed to start server")
+		Gmf.logger.warn("Failed to start server")
 		return false
 
 	var server_tls_options = get_tls_options()
 	if server_tls_options == null:
-		Logger.warn("Failed to load tls options")
+		Gmf.logger.warn("Failed to load tls options")
 		return false
 
 	error = server.host.dtls_server_setup(server_tls_options)
 	if error != OK:
-		Logger.warn("Failed to setup DTLS")
+		Gmf.logger.warn("Failed to setup DTLS")
 		return false
 
 	multiplayer.multiplayer_peer = server
 
-	Logger.info("Started DTLS server")
+	Gmf.logger.info("Started DTLS server")
 
 	return true
 
 
 func _on_peer_connected(id):
-	Logger.info("Peer connected %d" % id)
+	Gmf.logger.info("Peer connected %d" % id)
 
 
 func _on_peer_disconnected(id):
-	Logger.info("Peer disconnected %d" % id)
+	Gmf.logger.info("Peer disconnected %d" % id)

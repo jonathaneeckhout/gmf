@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://d3r45qh0msqac"]
+[gd_scene load_steps=3 format=3 uid="uid://d3r45qh0msqac"]
 
 [ext_resource type="Script" path="res://gmf/server/scenes/server/Server.gd" id="1_uefmg"]
+[ext_resource type="PackedScene" uid="uid://d0iiqce1vkkho" path="res://gmf/server/scenes/database/Database.tscn" id="2_bvxr6"]
 
 [node name="Server" type="Node"]
 script = ExtResource("1_uefmg")
+
+[node name="Database" parent="." instance=ExtResource("2_bvxr6")]

@@ -1,11 +1,21 @@
 extends Node
 
+var backend: Node
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	match Gmf.global.env_server_database_backend:
+		"json":
+			Gmf.logger.info("Loading json database backend")
+			backend = load("res://gmf/server/scenes/database/backends/json_backend.gd").new()
+			backend.name = "Backend"
+			add_child(backend)
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+func create_account(username: String, password: String) -> bool:
+	if username == "" or password == "":
+		Gmf.logger.info("Invalid username or password")
+		return false
+
+	return true

@@ -72,36 +72,25 @@ func _handle_connect():
 
 	connect_pressed = false
 
-	if !Global.client.connect_to_server(server_address, server_port):
-		Logger.warn(
-			(
-				"Could not connect to server=[%s] on port=[%d]"
-				% [Global.env_server_address, Global.env_server_port]
-			)
+	if !Gmf.global.client.connect_to_server(server_address, server_port):
+		Gmf.logger.warn(
+			"Could not connect to server=[%s] on port=[%d]" % [server_address, server_port]
 		)
 		login_panel.show_connect_error("Error conneting server")
 		state = STATES.INIT
 		fsm_timer.start()
 		return
 
-	if !await Signals.client_connected:
-		Logger.warn(
-			(
-				"Could not connect to server=[%s] on port=[%d]"
-				% [Global.env_server_address, Global.env_server_port]
-			)
+	if !await Gmf.signals.client_connected:
+		Gmf.logger.warn(
+			"Could not connect to server=[%s] on port=[%d]" % [server_address, server_port]
 		)
 		login_panel.show_connect_error("Error conneting server")
 		state = STATES.INIT
 		fsm_timer.start()
 		return
 
-	Logger.info(
-		(
-			"Connected to server=[%s] on port=[%d]"
-			% [Global.env_server_address, Global.env_server_port]
-		)
-	)
+	Gmf.logger.info("Connected to server=[%s] on port=[%d]" % [server_address, server_port])
 
 	state = STATES.LOGIN
 	fsm_timer.start()
@@ -144,9 +133,9 @@ func _handle_create_account():
 
 	create_account_pressed = false
 
-	AccountRPCs.create_account.rpc_id(1, new_username, new_password)
+	Gmf.account_rpc.create_account.rpc_id(1, new_username, new_password)
 
-	var response = await Signals.account_created
+	var response = await Gmf.signals.account_created
 	if response["error"]:
 		login_panel.show_create_account_error(response["reason"])
 	else:

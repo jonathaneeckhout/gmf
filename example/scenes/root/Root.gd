@@ -7,7 +7,7 @@ func _ready():
 
 
 func _on_run_as_server_pressed():
-	Logger.info("Running as server")
+	Gmf.logger.info("Running as server")
 	$SelectRunMode.queue_free()
 
 	var server = load("res://gmf/server/scenes/server/Server.tscn").instantiate()
@@ -15,7 +15,7 @@ func _on_run_as_server_pressed():
 
 
 func _on_run_as_client_pressed():
-	Logger.info("Running as client")
+	Gmf.logger.info("Running as client")
 	$SelectRunMode.queue_free()
 
 	var client = load("res://gmf/client/scenes/client/Client.tscn").instantiate()

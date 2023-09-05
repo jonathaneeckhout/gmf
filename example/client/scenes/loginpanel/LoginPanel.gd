@@ -8,8 +8,8 @@ signal back_create_account_pressed
 
 
 func _ready():
-	$Panel/ConnectContainer/ServerAddressText.text = Global.env_server_address
-	$Panel/ConnectContainer/ServerPortText.text = str(Global.env_server_port)
+	$Panel/ConnectContainer/ServerAddressText.text = Gmf.global.env_server_address
+	$Panel/ConnectContainer/ServerPortText.text = str(Gmf.global.env_server_port)
 
 	$Panel/ConnectContainer/ConnectButton.pressed.connect(_on_connect_button_pressed)
 
@@ -62,7 +62,7 @@ func _on_connect_button_pressed():
 
 	if server_address == "" or server_port <= 0:
 		$Panel/ConnectContainer/ErrorLabel.text = "Invalid server address or port"
-		Logger.warn("Invalid server address or port")
+		Gmf.logger.warn("Invalid server address or port")
 		return
 
 	connect_pressed.emit(server_address, server_port)
@@ -74,7 +74,7 @@ func _on_login_button_pressed():
 
 	if username == "" or password == "":
 		$Panel/LoginContainer/ErrorLabel.text = "Invalid username or password"
-		Logger.warn("Invalid username or password")
+		Gmf.logger.warn("Invalid username or password")
 		return
 
 	login_pressed.emit(username, password)
@@ -91,12 +91,12 @@ func _on_create_account_button_pressed():
 
 	if username == "" or password == "" or repeat_password == "":
 		$Panel/CreateAccountContainer/ErrorLabel.text = "Fill in all fields"
-		Logger.warn("Invalid username or password")
+		Gmf.logger.warn("Invalid username or password")
 		return
 
 	if password != repeat_password:
 		$Panel/CreateAccountContainer/ErrorLabel.text = "Password mismatch"
-		Logger.warn("Password mismatch")
+		Gmf.logger.warn("Password mismatch")
 		return
 
 	create_account_pressed.emit(username, password)
