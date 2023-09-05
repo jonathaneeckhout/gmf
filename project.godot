@@ -21,6 +21,7 @@ Logger="*res://addons/logger/logger.gd"
 Env="*res://gmf/common/scripts/godotenv/scripts/env.gd"
 Global="*res://gmf/common/scripts/global.gd"
 Signals="*res://gmf/common/scripts/signals.gd"
+AccountRPCs="*res://gmf/common/scripts/rpcs/accountrpcs.gd"
 
 [display]
 

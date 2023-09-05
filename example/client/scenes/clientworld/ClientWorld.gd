@@ -1,15 +1,25 @@
 extends Node2D
 
-enum STATES { INIT, LOGIN_SCREEN, CONNECT, DISCONNECTED, AUTHENTICATE, RUNNING }
+enum STATES { INIT, CONNECT, DISCONNECTED, LOGIN, CREATE_ACCOUNT, AUTHENTICATE, RUNNING }
 
 var state: STATES = STATES.INIT
 var fsm_timer: Timer
 
+var connect_pressed: bool = false
+var server_address: String
+var server_port: int
+
 var login_pressed: bool = false
-var address: String
-var port: int
 var user: String
 var passwd: String
+
+var show_create_account_pressed: bool = false
+
+var create_account_pressed: bool = false
+var new_username: String
+var new_password: String
+
+var back_create_account_pressed: bool = false
 
 @onready var login_panel = $LoginPanel
 
@@ -23,60 +33,125 @@ func _ready():
 	fsm_timer.timeout.connect(_on_fsm_timer_timeout)
 	add_child(fsm_timer)
 
+	login_panel.connect_pressed.connect(_on_connect_pressed)
 	login_panel.login_pressed.connect(_on_login_pressed)
+	login_panel.show_create_account_pressed.connect(_on_show_create_account_pressed)
+	login_panel.create_account_pressed.connect(_on_create_account_pressed)
+	login_panel.back_create_account_pressed.connect(_on_back_create_account_pressed)
 
 
 func fsm():
 	match state:
 		STATES.INIT:
 			_handle_init()
-		STATES.LOGIN_SCREEN:
-			_handle_login_screen()
 		STATES.CONNECT:
 			pass
 			_handle_connect()
 		STATES.DISCONNECTED:
 			pass
+		STATES.LOGIN:
+			_handle_login()
 		STATES.AUTHENTICATE:
-			pass
-			# _handle_authenticate()
+			_handle_authenticate()
+		STATES.CREATE_ACCOUNT:
+			_handle_create_account()
 		STATES.RUNNING:
 			pass
 
 
 func _handle_init():
-	state = STATES.LOGIN_SCREEN
+	state = STATES.CONNECT
 	fsm_timer.start()
 
 
-func _handle_login_screen():
-	$LoginPanel.show()
-
-	if login_pressed:
-		login_pressed = false
-		state = STATES.CONNECT
-
-		fsm_timer.start()
-
-
 func _handle_connect():
-	if !Global.client.connect_to_server(address, port):
-		Logger.warn("Could not connect to server=[%s] on port=[%d]" % [address, port])
-		login_panel.show_error("Error conneting server")
+	login_panel.show_connect_container()
+
+	if !connect_pressed:
+		return
+
+	connect_pressed = false
+
+	if !Global.client.connect_to_server(server_address, server_port):
+		Logger.warn(
+			(
+				"Could not connect to server=[%s] on port=[%d]"
+				% [Global.env_server_address, Global.env_server_port]
+			)
+		)
+		login_panel.show_connect_error("Error conneting server")
 		state = STATES.INIT
 		fsm_timer.start()
 		return
 
 	if !await Signals.client_connected:
-		Logger.warn("Could not connect to server=[%s] on port=[%d]" % [address, port])
-		login_panel.show_error("Error conneting server")
+		Logger.warn(
+			(
+				"Could not connect to server=[%s] on port=[%d]"
+				% [Global.env_server_address, Global.env_server_port]
+			)
+		)
+		login_panel.show_connect_error("Error conneting server")
 		state = STATES.INIT
 		fsm_timer.start()
 		return
 
-	Logger.info("Connected to server=[%s] on port=[%d]" % [address, port])
+	Logger.info(
+		(
+			"Connected to server=[%s] on port=[%d]"
+			% [Global.env_server_address, Global.env_server_port]
+		)
+	)
 
-	state = STATES.AUTHENTICATE
+	state = STATES.LOGIN
+	fsm_timer.start()
+
+
+func _handle_login():
+	login_panel.show_login_container()
+
+	if show_create_account_pressed:
+		show_create_account_pressed = false
+		state = STATES.CREATE_ACCOUNT
+		fsm_timer.start()
+		return
+
+	if !login_pressed:
+		return
+
+	login_pressed = false
+
+	#TODO: login
+
+	fsm_timer.start()
+
+
+func _handle_authenticate():
+	pass
+
+
+func _handle_create_account():
+	login_panel.show_create_account_container()
+
+	if back_create_account_pressed:
+		back_create_account_pressed = false
+		state = STATES.LOGIN
+		fsm_timer.start()
+		return
+
+	if !create_account_pressed:
+		return
+
+	create_account_pressed = false
+
+	AccountRPCs.create_account.rpc_id(1, new_username, new_password)
+
+	var response = await Signals.account_created
+	if response["error"]:
+		login_panel.show_create_account_error(response["reason"])
+	else:
+		login_panel.show_create_account_error("Account created")
+
 	fsm_timer.start()
 
 
@@ -84,13 +159,37 @@ func _on_fsm_timer_timeout():
 	fsm()
 
 
-func _on_login_pressed(
-	server_address: String, server_port: int, username: String, password: String
-):
+func _on_connect_pressed(address: String, port: int):
+	connect_pressed = true
+	server_address = address
+	server_port = port
+
+	fsm()
+
+
+func _on_login_pressed(username: String, password: String):
 	login_pressed = true
-	address = server_address
-	port = server_port
 	user = username
 	passwd = password
+
+	fsm()
+
+
+func _on_show_create_account_pressed():
+	show_create_account_pressed = true
+
+	fsm()
+
+
+func _on_create_account_pressed(username: String, password: String):
+	create_account_pressed = true
+	new_username = username
+	new_password = password
+
+	fsm()
+
+
+func _on_back_create_account_pressed():
+	back_create_account_pressed = true
 
 	fsm()
