@@ -1,4 +1,4 @@
-extends Node2D
+extends Node
 
 enum STATES { INIT, CONNECT, DISCONNECTED, LOGIN, CREATE_ACCOUNT, AUTHENTICATE, RUNNING }
 
@@ -21,13 +21,14 @@ var new_password: String
 
 var back_create_account_pressed: bool = false
 
-@onready var login_panel = $LoginPanel
+@onready var login_panel = $"../LoginPanel"
 
 
 func _ready():
 	# Add a short timer to deffer the fsm() calls
 	fsm_timer = Timer.new()
-	fsm_timer.wait_time = 0.1
+	fsm_timer.name = "FSMTimer"
+	fsm_timer.wait_time = 0.01
 	fsm_timer.autostart = false
 	fsm_timer.one_shot = true
 	fsm_timer.timeout.connect(_on_fsm_timer_timeout)
@@ -45,7 +46,6 @@ func fsm():
 		STATES.INIT:
 			_handle_init()
 		STATES.CONNECT:
-			pass
 			_handle_connect()
 		STATES.DISCONNECTED:
 			pass
@@ -81,7 +81,7 @@ func _handle_connect():
 		fsm_timer.start()
 		return
 
-	if !await Gmf.signals.client_connected:
+	if !await Gmf.signals.client.connected:
 		Gmf.logger.warn(
 			"Could not connect to server=[%s] on port=[%d]" % [server_address, server_port]
 		)
@@ -112,7 +112,7 @@ func _handle_login():
 
 	Gmf.rpcs.account.authenticate.rpc_id(1, user, passwd)
 
-	var response = await Gmf.signals.authenticated
+	var response = await Gmf.signals.client.authenticated
 	if response:
 		login_panel.show_login_error("Login succeeded")
 	else:
@@ -141,7 +141,7 @@ func _handle_create_account():
 
 	Gmf.rpcs.account.create_account.rpc_id(1, new_username, new_password)
 
-	var response = await Gmf.signals.account_created
+	var response = await Gmf.signals.client.account_created
 	if response["error"]:
 		login_panel.show_create_account_error(response["reason"])
 	else:

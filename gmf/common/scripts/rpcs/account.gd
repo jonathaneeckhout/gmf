@@ -15,7 +15,7 @@ extends Node
 
 @rpc("call_remote", "authority", "reliable")
 func create_account_response(error: bool, reason: String = ""):
-	Gmf.signals.account_created.emit({"error": error, "reason": reason})
+	Gmf.signals.client.account_created.emit({"error": error, "reason": reason})
 
 
 @rpc("call_remote", "any_peer", "reliable") func authenticate(username, password):
@@ -29,8 +29,10 @@ func create_account_response(error: bool, reason: String = ""):
 
 	Gmf.server.users[id]["logged_in"] = res
 
+	Gmf.signals.server.player_logged_in.emit(id, username)
+
 	authentication_response.rpc_id(id, res)
 
 
 @rpc("call_remote", "authority", "reliable") func authentication_response(response: bool):
-	Gmf.signals.authenticated.emit(response)
+	Gmf.signals.client.authenticated.emit(response)

@@ -38,14 +38,14 @@ func connect_to_server(address, port) -> bool:
 
 func _on_connection_succeeded():
 	Gmf.logger.info("Connection succeeded")
-	Gmf.signals.client_connected.emit(true)
+	Gmf.signals.client.connected.emit(true)
 
 
 func _on_server_disconnected():
 	Gmf.logger.info("Server disconnected")
-	Gmf.signals.client_connected.emit(false)
+	Gmf.signals.client.connected.emit(false)
 
 
 func _on_connection_failed():
 	Gmf.logger.warn("Connection failed")
-	Gmf.signals.client_connected.emit(false)
+	Gmf.signals.client.connected.emit(false)

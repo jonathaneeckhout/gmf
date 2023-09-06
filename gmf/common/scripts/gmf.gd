@@ -9,6 +9,8 @@ var rpcs: Node
 var server: Node
 var client: Node
 
+var world: Node
+
 
 func _ready():
 	logger = load("res://addons/logger/logger.gd").new()
@@ -31,11 +33,17 @@ func _ready():
 	rpcs.name = "RPCs"
 	add_child(rpcs)
 
+	world = load("res://gmf/common/scripts/world.gd").new()
+	world.name = "World"
+	add_child(world)
+
 
 func init_server() -> bool:
 	if not Gmf.global.load_server_env_variables():
 		Gmf.logger.error("Could not load server's env variables")
 		return false
+
+	signals.init_server()
 
 	server = load("res://gmf/server/scripts/server.gd").new()
 	server.name = "Server"
@@ -53,8 +61,14 @@ func init_client() -> bool:
 		Gmf.logger.error("Could not load client's env variables")
 		return false
 
+	signals.init_client()
+
 	client = load("res://gmf/client/scripts/client.gd").new()
 	client.name = "Client"
 	add_child(client)
 
 	return true
+
+
+func init_world(w: Node2D, is_server: bool = true) -> bool:
+	return world.init(w, is_server)
