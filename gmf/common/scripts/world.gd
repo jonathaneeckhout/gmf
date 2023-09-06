@@ -3,20 +3,24 @@ extends Node
 var server: Node
 var client: Node
 
+var players: Node2D
+var enemies: Node2D
+var npcs: Node2D
+
 
 func init(world: Node2D, is_server = true) -> bool:
 	var entities = Node2D.new()
 	entities.name = "Entities"
 
-	var players = Node2D.new()
+	players = Node2D.new()
 	players.name = "Players"
 	entities.add_child(players)
 
-	var enemies = Node2D.new()
+	enemies = Node2D.new()
 	enemies.name = "Enemies"
 	entities.add_child(enemies)
 
-	var npcs = Node2D.new()
+	npcs = Node2D.new()
 	npcs.name = "NPCs"
 	entities.add_child(npcs)
 

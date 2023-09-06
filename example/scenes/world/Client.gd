@@ -1,6 +1,6 @@
 extends Node
 
-enum STATES { INIT, CONNECT, DISCONNECTED, LOGIN, CREATE_ACCOUNT, AUTHENTICATE, RUNNING }
+enum STATES { INIT, CONNECT, DISCONNECTED, LOGIN, CREATE_ACCOUNT, RUNNING }
 
 var state: STATES = STATES.INIT
 var fsm_timer: Timer
@@ -51,8 +51,6 @@ func fsm():
 			pass
 		STATES.LOGIN:
 			_handle_login()
-		STATES.AUTHENTICATE:
-			_handle_authenticate()
 		STATES.CREATE_ACCOUNT:
 			_handle_create_account()
 		STATES.RUNNING:
@@ -115,6 +113,9 @@ func _handle_login():
 	var response = await Gmf.signals.client.authenticated
 	if response:
 		login_panel.show_login_error("Login succeeded")
+		login_panel.hide()
+		state = STATES.RUNNING
+		fsm()
 	else:
 		login_panel.show_login_error("Login failed")
 

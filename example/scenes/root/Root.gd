@@ -5,6 +5,8 @@ func _ready():
 	$SelectRunMode/VBoxContainer/RunAsServerButton.pressed.connect(_on_run_as_server_pressed)
 	$SelectRunMode/VBoxContainer/RunAsClientButton.pressed.connect(_on_run_as_client_pressed)
 
+	Gmf.register_player_scene("res://example/scenes/player/Player.tscn")
+
 
 func _on_run_as_server_pressed():
 	Gmf.logger.info("Running as server")

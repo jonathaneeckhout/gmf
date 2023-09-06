@@ -11,6 +11,8 @@ var client: Node
 
 var world: Node
 
+var player_scene: Resource
+
 
 func _ready():
 	logger = load("res://addons/logger/logger.gd").new()
@@ -72,3 +74,7 @@ func init_client() -> bool:
 
 func init_world(w: Node2D, is_server: bool = true) -> bool:
 	return world.init(w, is_server)
+
+
+func register_player_scene(player_scene_path: String):
+	player_scene = load(player_scene_path)
