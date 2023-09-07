@@ -2,6 +2,7 @@ extends Node
 
 var account: Node
 var player: Node
+var clock: Node
 
 
 func _ready():
@@ -12,3 +13,7 @@ func _ready():
 	player = load("res://gmf/common/scripts/rpcs/player.gd").new()
 	player.name = "Player"
 	add_child(player)
+
+	clock = load("res://gmf/common/scripts/rpcs/clock.gd").new()
+	clock.name = "Clock"
+	add_child(clock)

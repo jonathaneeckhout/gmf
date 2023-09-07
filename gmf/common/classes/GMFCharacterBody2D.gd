@@ -35,10 +35,7 @@ func _physics_process(delta):
 		fsm(delta)
 		reset_inputs()
 
-	move_and_slide()
-
-	if multiplayer.is_server():
-		server_synchronizer.sync.rpc_id(peer_id, position)
+		move_and_slide()
 
 
 func fsm(_delta):
@@ -79,7 +76,7 @@ func _on_player_moved(id: int, pos: Vector2):
 
 
 @rpc("call_remote", "any_peer", "reliable") func _move(pos: Vector2):
-	if not multiplayer.is_server():
+	if not is_multiplayer_authority():
 		return
 
 	var id = multiplayer.get_remote_sender_id()

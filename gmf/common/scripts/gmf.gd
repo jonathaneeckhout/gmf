@@ -41,6 +41,8 @@ func _ready():
 
 
 func init_server() -> bool:
+	Engine.set_physics_ticks_per_second(20)
+
 	if not Gmf.global.load_server_env_variables():
 		Gmf.logger.error("Could not load server's env variables")
 		return false
@@ -59,6 +61,8 @@ func init_server() -> bool:
 
 
 func init_client() -> bool:
+	Engine.set_physics_ticks_per_second(60)
+
 	if not Gmf.global.load_client_env_variables():
 		Gmf.logger.error("Could not load client's env variables")
 		return false
