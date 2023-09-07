@@ -14,10 +14,9 @@ func _ready():
 	parent = $"../"
 
 
-func _process(_delta):
+func _physics_process(_delta):
 	if multiplayer.is_server():
 		var timestamp = Time.get_unix_time_from_system()
-
 		sync.rpc_id(parent.peer_id, timestamp, parent.position)
 	else:
 		var render_time = Gmf.client.clock - INTERPOLATION_OFFSET

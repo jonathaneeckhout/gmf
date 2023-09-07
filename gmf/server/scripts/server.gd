@@ -82,15 +82,13 @@ func start() -> bool:
 	return true
 
 
-func _on_peer_connected(id):
+func _on_peer_connected(id: int):
 	Gmf.logger.info("Peer connected %d" % id)
 	users[id] = {
-		"username": "",
-		"logged_in": false,
-		"connected_time": Time.get_unix_time_from_system()
+		"username": "", "logged_in": false, "connected_time": Time.get_unix_time_from_system()
 	}
 
 
-func _on_peer_disconnected(id):
+func _on_peer_disconnected(id: int):
 	Gmf.logger.info("Peer disconnected %d" % id)
 	users.erase(id)
