@@ -19,7 +19,7 @@ func _ready():
 func _physics_process(_delta):
 	if is_multiplayer_authority():
 		var timestamp = Time.get_unix_time_from_system()
-		sync.rpc_id(parent.peer_id, timestamp, parent.position)
+		sync.rpc_id(parent.peer_id, timestamp, parent.position, parent.velocity)
 	else:
 		calculate_position()
 		check_if_state_updated()
@@ -35,15 +35,19 @@ func calculate_position():
 		server_syncs_buffer.remove_at(0)
 
 	if server_syncs_buffer.size() > INTERPOLATION_INDEX:
-		parent.position = interpolate(render_time)
+		var interpolation_factor = calculate_interpolation_factor(render_time)
+		parent.position = interpolate(interpolation_factor, "position")
+		parent.velocity = interpolate(interpolation_factor, "velocity")
 	elif (
 		server_syncs_buffer.size() > INTERPOLATION_INDEX - 1
 		and render_time > server_syncs_buffer[INTERPOLATION_INDEX - 1]["timestamp"]
 	):
-		parent.position = extrapolate(render_time)
+		var extrapolation_factor = calculate_extrapolation_factor(render_time)
+		parent.position = extrapolate(extrapolation_factor, "position")
+		parent.velocity = extrapolate(extrapolation_factor, "velocity")
 
 
-func interpolate(render_time):
+func calculate_interpolation_factor(render_time: float) -> float:
 	var interpolation_factor = (
 		float(render_time - server_syncs_buffer[INTERPOLATION_INDEX - 1]["timestamp"])
 		/ float(
@@ -54,12 +58,16 @@ func interpolate(render_time):
 		)
 	)
 
-	return server_syncs_buffer[INTERPOLATION_INDEX - 1]["position"].lerp(
-		server_syncs_buffer[INTERPOLATION_INDEX]["position"], interpolation_factor
+	return interpolation_factor
+
+
+func interpolate(interpolation_factor: float, parameter: String) -> Vector2:
+	return server_syncs_buffer[INTERPOLATION_INDEX - 1][parameter].lerp(
+		server_syncs_buffer[INTERPOLATION_INDEX][parameter], interpolation_factor
 	)
 
 
-func extrapolate(render_time):
+func calculate_extrapolation_factor(render_time: float) -> float:
 	var extrapolation_factor = (
 		float(render_time - server_syncs_buffer[INTERPOLATION_INDEX - 2]["timestamp"])
 		/ float(
@@ -70,8 +78,12 @@ func extrapolate(render_time):
 		)
 	)
 
-	return server_syncs_buffer[INTERPOLATION_INDEX - 2]["position"].lerp(
-		server_syncs_buffer[INTERPOLATION_INDEX - 1]["position"], extrapolation_factor
+	return extrapolation_factor
+
+
+func extrapolate(extrapolation_factor: float, parameter: String) -> Vector2:
+	return server_syncs_buffer[INTERPOLATION_INDEX - 2][parameter].lerp(
+		server_syncs_buffer[INTERPOLATION_INDEX - 1][parameter], extrapolation_factor
 	)
 
 
@@ -89,13 +101,14 @@ func check_if_state_updated():
 			return true
 
 
-@rpc("call_remote", "authority", "unreliable") func sync(timestamp: float, pos: Vector2):
+@rpc("call_remote", "authority", "unreliable")
+func sync(timestamp: float, pos: Vector2, vec: Vector2):
 	# Ignore older syncs
 	if timestamp < last_sync_timestamp:
 		return
 
 	last_sync_timestamp = timestamp
-	server_syncs_buffer.append({"timestamp": timestamp, "position": pos})
+	server_syncs_buffer.append({"timestamp": timestamp, "position": pos, "velocity": vec})
 
 
 @rpc("call_remote", "any_peer", "reliable") func move(pos: Vector2):
