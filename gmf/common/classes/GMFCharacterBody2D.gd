@@ -2,8 +2,6 @@ extends CharacterBody2D
 
 class_name GMFCharacterBody2D
 
-enum STATES { IDLE, MOVE }
-
 const ARRIVAL_DISTANCE = 8
 const SPEED = 300.0
 
@@ -13,7 +11,7 @@ const SPEED = 300.0
 
 var username: String = ""
 
-var state = STATES.IDLE
+var state: String = "Idle"
 
 var moving := false
 var move_target := Vector2()
@@ -26,12 +24,12 @@ func _ready():
 	server_synchronizer.name = "ServerSynchronizer"
 	add_child(server_synchronizer)
 
-	if multiplayer.is_server():
+	if is_multiplayer_authority():
 		Gmf.signals.server.player_moved.connect(_on_player_moved)
 
 
 func _physics_process(delta):
-	if multiplayer.is_server():
+	if is_multiplayer_authority():
 		fsm(delta)
 		reset_inputs()
 
@@ -40,14 +38,18 @@ func _physics_process(delta):
 
 func fsm(_delta):
 	match state:
-		STATES.IDLE:
+		"Idle":
 			if moving:
-				state = STATES.MOVE
+				set_new_state("Move")
 			else:
 				velocity = Vector2.ZERO
-				state = STATES.IDLE
-		STATES.MOVE:
+		"Move":
 			_handle_move()
+
+
+func set_new_state(new_state: String):
+	state = new_state
+	server_synchronizer.send_new_state(state)
 
 
 func reset_inputs():
@@ -55,16 +57,15 @@ func reset_inputs():
 
 
 func move(pos: Vector2):
-	_move.rpc_id(1, pos)
+	server_synchronizer.move.rpc_id(1, pos)
 
 
 func _handle_move():
 	if position.distance_to(move_target) > ARRIVAL_DISTANCE:
 		velocity = position.direction_to(move_target) * SPEED
-		state = STATES.MOVE
 	else:
 		velocity = Vector2.ZERO
-		state = STATES.IDLE
+		set_new_state("Idle")
 
 
 func _on_player_moved(id: int, pos: Vector2):
@@ -73,12 +74,3 @@ func _on_player_moved(id: int, pos: Vector2):
 
 	moving = true
 	move_target = pos
-
-
-@rpc("call_remote", "any_peer", "reliable") func _move(pos: Vector2):
-	if not is_multiplayer_authority():
-		return
-
-	var id = multiplayer.get_remote_sender_id()
-
-	Gmf.signals.server.player_moved.emit(id, pos)
