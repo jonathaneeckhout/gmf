@@ -1,5 +1,8 @@
 extends GMFCharacterBody2D
 
+var current_animation = "Idle"
+var current_facing = "Down"
+
 
 func _input(event):
 	# Don't handle input on server side
@@ -19,10 +22,27 @@ func _ready():
 	Gmf.signals.client.player_state_changed.connect(_on_player_state_changed)
 
 
+func _physics_process(delta):
+	super(delta)
+
+	if multiplayer.is_server():
+		return
+
+	if velocity.length() > 0:
+		var direction = velocity.normalized()
+
+		if direction.x > 0.5 and direction.y < 0.5 and direction.y > -0.5:
+			current_facing = "Right"
+		elif direction.x < -0.5 and direction.y < 0.5 and direction.y > -0.5:
+			current_facing = "Left"
+		elif direction.y > 0.5 and direction.x < 0.5 and direction.x > -0.5:
+			current_facing = "Down"
+		elif direction.y < -0.5 and direction.x < 0.5 and direction.x > -0.5:
+			current_facing = "Up"
+
+	$"Sprites/Character".play("%s_%s" % [current_animation, current_facing])
+
+
 func _on_player_state_changed(new_state: String):
 	Gmf.logger.info("Player's new state=[%s]" % new_state)
-	match new_state:
-		"Idle":
-			$"Sprites/Character".play("idle_left")
-		"Move":
-			$"Sprites/Character".play("walk_left")
+	current_animation = new_state

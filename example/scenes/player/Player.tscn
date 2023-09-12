@@ -157,7 +157,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_dduo4")
 }],
 "loop": true,
-"name": &"idle_down",
+"name": &"Idle_Down",
 "speed": 5.0
 }, {
 "frames": [{
@@ -165,7 +165,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_xsocr")
 }],
 "loop": true,
-"name": &"idle_left",
+"name": &"Idle_Left",
 "speed": 5.0
 }, {
 "frames": [{
@@ -173,7 +173,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_ibepa")
 }],
 "loop": true,
-"name": &"idle_right",
+"name": &"Idle_Right",
 "speed": 5.0
 }, {
 "frames": [{
@@ -181,7 +181,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_ui48o")
 }],
 "loop": true,
-"name": &"idle_up",
+"name": &"Idle_Up",
 "speed": 5.0
 }, {
 "frames": [{
@@ -210,7 +210,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_v065c")
 }],
 "loop": true,
-"name": &"walk_down",
+"name": &"Move_Down",
 "speed": 5.0
 }, {
 "frames": [{
@@ -239,7 +239,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_k1jov")
 }],
 "loop": true,
-"name": &"walk_left",
+"name": &"Move_Left",
 "speed": 5.0
 }, {
 "frames": [{
@@ -268,7 +268,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_cvfl5")
 }],
 "loop": true,
-"name": &"walk_right",
+"name": &"Move_Right",
 "speed": 5.0
 }, {
 "frames": [{
@@ -297,7 +297,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_p1032")
 }],
 "loop": true,
-"name": &"walk_up",
+"name": &"Move_Up",
 "speed": 8.0
 }]
 
@@ -312,4 +312,4 @@ shape = SubResource("CircleShape2D_jan6g")
 [node name="Character" type="AnimatedSprite2D" parent="Sprites"]
 position = Vector2(0, -24)
 sprite_frames = SubResource("SpriteFrames_kfbn1")
-animation = &"idle_down"
+animation = &"Move_Up"
