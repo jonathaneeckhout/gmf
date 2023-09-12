@@ -1,7 +1,7 @@
 extends GMFCharacterBody2D
 
-var current_animation = "Idle"
-var current_facing = "Down"
+var current_animation: String = "Idle"
+var current_facing: String = "Down"
 
 
 func _input(event):
@@ -19,7 +19,7 @@ func _ready():
 	if multiplayer.is_server():
 		return
 
-	Gmf.signals.client.player_state_changed.connect(_on_player_state_changed)
+	state_changed.connect(_on_state_changed)
 
 
 func _physics_process(delta):
@@ -43,6 +43,6 @@ func _physics_process(delta):
 	$"Sprites/Character".play("%s_%s" % [current_animation, current_facing])
 
 
-func _on_player_state_changed(new_state: String):
+func _on_state_changed(new_state: String):
 	Gmf.logger.info("Player's new state=[%s]" % new_state)
 	current_animation = new_state

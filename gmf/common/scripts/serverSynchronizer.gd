@@ -10,16 +10,43 @@ var server_syncs_buffer = []
 
 var state_buffer = []
 
+var bodies_in_view = []
+var watchers = []
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	parent = $"../"
 
+	if is_multiplayer_authority():
+		var network_view_area = Area2D.new()
+		network_view_area.name = "NetworkViewArea"
+		var cs_network_view_area = CollisionShape2D.new()
+		cs_network_view_area.name = "NetworkViewAreaCollisionShape2D"
+		network_view_area.add_child(cs_network_view_area)
+
+		var cs_network_view_circle = CircleShape2D.new()
+
+		cs_network_view_circle.radius = 512.0
+		cs_network_view_area.shape = cs_network_view_circle
+
+		add_child(network_view_area)
+
+		network_view_area.body_entered.connect(_on_network_view_area_body_entered)
+		network_view_area.body_exited.connect(_on_network_view_area_body_exited)
+
 
 func _physics_process(_delta):
 	if is_multiplayer_authority():
 		var timestamp = Time.get_unix_time_from_system()
+
 		sync.rpc_id(parent.peer_id, timestamp, parent.position, parent.velocity)
+
+		for body in bodies_in_view:
+			body.server_synchronizer.sync.rpc_id(
+				parent.peer_id, timestamp, body.position, body.velocity
+			)
+
 	else:
 		calculate_position()
 		check_if_state_updated()
@@ -91,12 +118,15 @@ func send_new_state(new_state: String):
 	var timestamp = Time.get_unix_time_from_system()
 	state_changed.rpc_id(parent.peer_id, timestamp, new_state)
 
+	for watcher in watchers:
+		state_changed.rpc_id(watcher.peer_id, timestamp, new_state)
+
 
 func check_if_state_updated():
 	for i in range(state_buffer.size() - 1, -1, -1):
 		if state_buffer[i]["timestamp"] <= Gmf.client.clock:
 			parent.state = state_buffer[i]["new_state"]
-			Gmf.signals.client.player_state_changed.emit(parent.state)
+			parent.state_changed.emit(parent.state)
 			state_buffer.remove_at(i)
 			return true
 
@@ -117,8 +147,27 @@ func sync(timestamp: float, pos: Vector2, vec: Vector2):
 
 	var id = multiplayer.get_remote_sender_id()
 
-	Gmf.signals.server.player_moved.emit(id, pos)
+	if id == parent.peer_id:
+		Gmf.signals.server.player_moved.emit(id, pos)
 
 
 @rpc("call_remote", "authority", "reliable") func state_changed(timestamp: float, new_state: String):
 	state_buffer.append({"timestamp": timestamp, "new_state": new_state})
+
+
+func _on_network_view_area_body_entered(body):
+	if body != parent and not bodies_in_view.has(body):
+		if "entity_type" in body and body.entity_type == Gmf.global.ENTITY_TYPES.PLAYER:
+			Gmf.rpcs.player.add_other_player.rpc_id(parent.peer_id, body.username, body.position)
+		bodies_in_view.append(body)
+
+	if body != parent and parent not in body.server_synchronizer.watchers:
+		body.server_synchronizer.watchers.append(parent)
+
+
+func _on_network_view_area_body_exited(body):
+	if bodies_in_view.has(body):
+		bodies_in_view.erase(body)
+
+	if body.server_synchronizer.watchers.has(parent):
+		body.server_synchronizer.watchers.erase(parent)

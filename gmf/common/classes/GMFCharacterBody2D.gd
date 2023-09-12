@@ -5,9 +5,14 @@ class_name GMFCharacterBody2D
 const ARRIVAL_DISTANCE = 8
 const SPEED = 300.0
 
+signal state_changed(new_state: String)
+
 @export var peer_id := 1:
 	set(id):
 		peer_id = id
+
+var entity_type
+var enable_input: bool = false
 
 var username: String = ""
 
@@ -20,6 +25,9 @@ var server_synchronizer: Node2D
 
 
 func _ready():
+	entity_type = Gmf.global.ENTITY_TYPES.PLAYER
+	set_process_input(enable_input)
+
 	server_synchronizer = load("res://gmf/common/scripts/serverSynchronizer.gd").new()
 	server_synchronizer.name = "ServerSynchronizer"
 	add_child(server_synchronizer)
