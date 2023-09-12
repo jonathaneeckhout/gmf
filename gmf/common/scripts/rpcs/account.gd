@@ -1,7 +1,7 @@
 extends Node
 
 @rpc("call_remote", "any_peer", "reliable") func create_account(username, password):
-	if not is_multiplayer_authority():
+	if not Gmf.is_server():
 		return
 
 	Gmf.logger.info("Creating account for user=[%s]" % username)
@@ -19,7 +19,7 @@ func create_account_response(error: bool, reason: String = ""):
 
 
 @rpc("call_remote", "any_peer", "reliable") func authenticate(username, password):
-	if not is_multiplayer_authority():
+	if not Gmf.is_server():
 		return
 
 	Gmf.logger.info("Authenticating user=[%s]" % username)

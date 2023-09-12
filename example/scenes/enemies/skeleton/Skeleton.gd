@@ -9,7 +9,7 @@ func _ready():
 	entity_type = Gmf.ENTITY_TYPE.ENEMY
 	enemy_class = "Skeleton"
 
-	if multiplayer.is_server():
+	if Gmf.is_server():
 		return
 
 	state_changed.connect(_on_state_changed)
@@ -18,7 +18,7 @@ func _ready():
 func _physics_process(delta):
 	super(delta)
 
-	if multiplayer.is_server():
+	if Gmf.is_server():
 		return
 
 	if velocity.length() > 0:

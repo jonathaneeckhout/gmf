@@ -6,7 +6,7 @@ var current_facing: String = "Down"
 
 func _input(event):
 	# Don't handle input on server side
-	if multiplayer.is_server():
+	if Gmf.is_server():
 		return
 
 	if event.is_action_pressed("gmf_right_click"):
@@ -16,7 +16,7 @@ func _input(event):
 func _ready():
 	super()
 
-	if multiplayer.is_server():
+	if Gmf.is_server():
 		return
 
 	state_changed.connect(_on_state_changed)
@@ -25,7 +25,7 @@ func _ready():
 func _physics_process(delta):
 	super(delta)
 
-	if multiplayer.is_server():
+	if Gmf.is_server():
 		return
 
 	if velocity.length() > 0:

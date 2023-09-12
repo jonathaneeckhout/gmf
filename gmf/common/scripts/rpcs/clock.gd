@@ -16,7 +16,7 @@ func _physics_process(delta):
 
 
 @rpc("call_remote", "any_peer", "reliable") func fetch_server_time(client_time: float):
-	if not is_multiplayer_authority():
+	if not Gmf.is_server():
 		return
 
 	var id = multiplayer.get_remote_sender_id()
@@ -30,7 +30,7 @@ func return_server_time(server_time: float, client_time: float):
 
 
 @rpc("call_remote", "any_peer", "reliable") func get_latency(client_time: float):
-	if not is_multiplayer_authority():
+	if not Gmf.is_server():
 		return
 
 	var id = multiplayer.get_remote_sender_id()
