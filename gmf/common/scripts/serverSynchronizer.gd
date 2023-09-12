@@ -18,7 +18,9 @@ var watchers = []
 func _ready():
 	parent = $"../"
 
-	if is_multiplayer_authority():
+	stop()
+
+	if Gmf.is_server() and parent.entity_type == Gmf.ENTITY_TYPE.PLAYER:
 		var network_view_area = Area2D.new()
 		network_view_area.name = "NetworkViewArea"
 		var cs_network_view_area = CollisionShape2D.new()
@@ -36,8 +38,16 @@ func _ready():
 		network_view_area.body_exited.connect(_on_network_view_area_body_exited)
 
 
+func stop():
+	set_physics_process(false)
+
+
+func start():
+	set_physics_process(true)
+
+
 func _physics_process(_delta):
-	if is_multiplayer_authority():
+	if Gmf.is_server():
 		var timestamp = Time.get_unix_time_from_system()
 
 		sync.rpc_id(parent.peer_id, timestamp, parent.position, parent.velocity)
@@ -142,7 +152,7 @@ func sync(timestamp: float, pos: Vector2, vec: Vector2):
 
 
 @rpc("call_remote", "any_peer", "reliable") func move(pos: Vector2):
-	if not is_multiplayer_authority():
+	if not Gmf.is_server():
 		return
 
 	var id = multiplayer.get_remote_sender_id()
@@ -157,8 +167,14 @@ func sync(timestamp: float, pos: Vector2, vec: Vector2):
 
 func _on_network_view_area_body_entered(body):
 	if body != parent and not bodies_in_view.has(body):
-		if "entity_type" in body and body.entity_type == Gmf.global.ENTITY_TYPES.PLAYER:
-			Gmf.rpcs.player.add_other_player.rpc_id(parent.peer_id, body.username, body.position)
+		match body.entity_type:
+			Gmf.ENTITY_TYPE.PLAYER:
+				Gmf.rpcs.player.add_other_player.rpc_id(
+					parent.peer_id, body.username, body.position
+				)
+			Gmf.ENTITY_TYPE.ENEMY:
+				Gmf.rpcs.enemy.add_enemy.rpc_id(parent.peer_id, body.name, body.enemy_class, body.position)
+
 		bodies_in_view.append(body)
 
 	if body != parent and parent not in body.server_synchronizer.watchers:

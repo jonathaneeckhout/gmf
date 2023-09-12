@@ -1,5 +1,10 @@
 extends Node
 
+enum MODE { SERVER, CLIENT }
+enum ENTITY_TYPE { PLAYER, ENEMY, ITEM, NPC }
+
+var mode: MODE = MODE.CLIENT
+
 var logger: Log
 var env: Node
 var global: Node
@@ -12,6 +17,7 @@ var client: Node
 var world: Node
 
 var player_scene: Resource
+var enemies_scene: Dictionary = {}
 
 
 func _ready():
@@ -35,12 +41,10 @@ func _ready():
 	rpcs.name = "RPCs"
 	add_child(rpcs)
 
-	world = load("res://gmf/common/scripts/world.gd").new()
-	world.name = "World"
-	add_child(world)
-
 
 func init_server() -> bool:
+	mode = MODE.SERVER
+
 	Engine.set_physics_ticks_per_second(20)
 
 	if not Gmf.global.load_server_env_variables():
@@ -61,6 +65,8 @@ func init_server() -> bool:
 
 
 func init_client() -> bool:
+	mode = MODE.CLIENT
+
 	Engine.set_physics_ticks_per_second(60)
 
 	if not Gmf.global.load_client_env_variables():
@@ -76,9 +82,13 @@ func init_client() -> bool:
 	return true
 
 
-func init_world(w: Node2D, is_server: bool = true) -> bool:
-	return world.init(w, is_server)
+func is_server() -> bool:
+	return Gmf.mode == Gmf.MODE.SERVER
 
 
 func register_player_scene(player_scene_path: String):
 	player_scene = load(player_scene_path)
+
+
+func register_enemy_scene(enemy_class: String, enemy_scene_path: String):
+	enemies_scene[enemy_class] = load(enemy_scene_path)

@@ -21,11 +21,6 @@ func _on_run_as_server_pressed():
 	world.name = "World"
 	self.add_child(world)
 
-	if not Gmf.init_world(world, true):
-		Gmf.logger.err("Could not initialize the Server's world, quitting")
-		get_tree().quit()
-		return
-
 	if not Gmf.server.start():
 		Gmf.logger.error("Failed to start server, quitting")
 		get_tree().quit()
@@ -43,10 +38,4 @@ func _on_run_as_client_pressed():
 
 	var world = load("res://example/scenes/world/World.tscn").instantiate()
 	world.name = "World"
-	world.set_client_mode()
 	self.add_child(world)
-
-	if not Gmf.init_world(world, false):
-		Gmf.logger.err("Could not initialize the client's world, quitting")
-		get_tree().quit()
-		return

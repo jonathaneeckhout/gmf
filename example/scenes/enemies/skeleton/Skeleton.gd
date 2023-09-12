@@ -1,20 +1,13 @@
-extends GMFPlayerBody2D
+extends GMFEnemyBody2D
 
 var current_animation: String = "Idle"
 var current_facing: String = "Down"
 
 
-func _input(event):
-	# Don't handle input on server side
-	if multiplayer.is_server():
-		return
-
-	if event.is_action_pressed("gmf_right_click"):
-		move(get_global_mouse_position())
-
-
 func _ready():
 	super()
+	entity_type = Gmf.ENTITY_TYPE.ENEMY
+	enemy_class = "Skeleton"
 
 	if multiplayer.is_server():
 		return
@@ -44,5 +37,4 @@ func _physics_process(delta):
 
 
 func _on_state_changed(new_state: String):
-	Gmf.logger.info("Player's new state=[%s]" % new_state)
 	current_animation = new_state

@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-class_name GMFCharacterBody2D
+class_name GMFPlayerBody2D
 
 const ARRIVAL_DISTANCE = 8
 const SPEED = 300.0
@@ -25,19 +25,19 @@ var server_synchronizer: Node2D
 
 
 func _ready():
-	entity_type = Gmf.global.ENTITY_TYPES.PLAYER
+	entity_type = Gmf.ENTITY_TYPE.PLAYER
 	set_process_input(enable_input)
 
 	server_synchronizer = load("res://gmf/common/scripts/serverSynchronizer.gd").new()
 	server_synchronizer.name = "ServerSynchronizer"
 	add_child(server_synchronizer)
 
-	if is_multiplayer_authority():
+	if Gmf.is_server():
 		Gmf.signals.server.player_moved.connect(_on_player_moved)
 
 
 func _physics_process(delta):
-	if is_multiplayer_authority():
+	if Gmf.is_server():
 		fsm(delta)
 		reset_inputs()
 

@@ -1,7 +1,5 @@
 extends Node
 
-enum ENTITY_TYPES { PLAYER, ENEMY, ITEM, NPC }
-
 var env_server_address = ""
 var env_server_port = 0
 var env_server_max_peers = 0
